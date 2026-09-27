@@ -180,6 +180,23 @@ async def test_memorized_func_call_async(tmp_path):
     assert await gg(2, counter) == 1
     assert await gg(2, counter) == 1
 
-    x, meta = await gg.call(2, counter)
+    x = await gg.call(2, counter)
     assert x == 2, "f has not been called properly"
-    assert isinstance(meta, dict), "Metadata are not returned by MemorizedFunc.call."
+
+
+@pytest.mark.asyncio
+async def test_not_memorized_func_call_async():
+    async def ff(x, counter):
+        await asyncio.sleep(0.1)
+        counter[x] = counter.get(x, 0) + 1
+        return counter[x]
+
+    memory = Memory(location=None, verbose=0)
+    gg = memory.cache(ff)
+
+    counter = {}
+    assert await gg(2, counter) == 1
+    assert await gg(2, counter) == 2
+
+    x = await gg.call(2, counter)
+    assert x == 3, "f has not been called properly"

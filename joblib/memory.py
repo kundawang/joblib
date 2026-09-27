@@ -341,7 +341,7 @@ class NotMemorizedFunc(object):
         pass
 
     def call(self, *args, **kwargs):
-        return self.func(*args, **kwargs), {}
+        return self.func(*args, **kwargs)
 
     def check_call_in_cache(self, *args, **kwargs):
         return False
@@ -826,13 +826,11 @@ class MemorizedFunc(Logger):
         -------
         output : object
             The output of the function call.
-        metadata : dict
-            The metadata associated with the call.
         """
         call_id = (self.func_id, self._get_args_id(*args, **kwargs))
 
-        # Return the output and the metadata
-        return self._call(call_id, args, kwargs)
+        # Return the output, without the metadata
+        return self._call(call_id, args, kwargs)[0]
 
     def _call(self, call_id, args, kwargs, shelving=False):
         # Return the output and the metadata
@@ -956,8 +954,10 @@ class AsyncMemorizedFunc(MemorizedFunc):
         return out[0]  # Don't return metadata
 
     async def call(self, *args, **kwargs):
-        out = super().call(*args, **kwargs)
-        return await out if asyncio.iscoroutine(out) else out
+        call_id = (self.func_id, self._get_args_id(*args, **kwargs))
+        out = self._call(call_id, args, kwargs)
+        out = await out if asyncio.iscoroutine(out) else out
+        return out[0]  # Don't return metadata
 
     async def _call(self, call_id, args, kwargs, shelving=False):
         self._before_call(args, kwargs)

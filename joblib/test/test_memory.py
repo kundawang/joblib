@@ -1624,11 +1624,8 @@ class TestMemorizedFunc:
         assert f(2, counter) == 1
         assert f(2, counter) == 1
 
-        x, meta = f.call(2, counter)
+        x = f.call(2, counter)
         assert x == 2, "f has not been called properly"
-        assert isinstance(meta, dict), (
-            "Metadata are not returned by MemorizedFunc.call."
-        )
 
     def test_call_method_not_memorized(self):
         "Test calling the function"
@@ -1638,11 +1635,8 @@ class TestMemorizedFunc:
         assert f(2, counter) == 1
         assert f(2, counter) == 2
 
-        x, meta = f.call(2, counter)
+        x = f.call(2, counter)
         assert x == 3, "f has not been called properly"
-        assert isinstance(meta, dict), (
-            "Metadata are not returned by MemorizedFunc.call."
-        )
 
 
 class TestAutoGitignore:
